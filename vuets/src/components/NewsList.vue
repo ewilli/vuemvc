@@ -1,11 +1,10 @@
 <template>
   <div class="grey lighten-3">
     <v-toolbar color="teal" dark>
-      <v-toolbar-side-icon></v-toolbar-side-icon>
       <v-toolbar-title>News</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-flex xs3>
-        <v-text-field label="Regular" v-model="searchTerm" single-line></v-text-field>
+        <v-text-field label="Suche" v-model="searchTerm" single-line></v-text-field>
       </v-flex>
       <v-btn icon>
         <v-icon>search</v-icon>
@@ -48,6 +47,11 @@ import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Article, News, Source } from '../models/newsModel';
 
+import { getModule } from 'vuex-module-decorators';
+import GlobalModule from '@/store/modules/globalModule';  // @ = src
+
+const globalModule = getModule(GlobalModule);
+
 @Component({
   components: {},
 })
@@ -66,9 +70,12 @@ export default class NewsList extends Vue {
   }
 
   get articlesFiltered() {
-    return this.news.articles.filter(
-      c => c.title.search(new RegExp(this.searchTerm, 'i')) !== -1,
-    );
+    if (this.searchTerm) {
+      return this.news.articles.filter(
+        c => c.title.search(new RegExp(this.searchTerm, 'i')) !== -1,
+      );
+    }
+    return this.news.articles;
   }
 
   get showNews() {
@@ -77,16 +84,19 @@ export default class NewsList extends Vue {
 
   protected mounted() {
     console.log('mounted');
+    globalModule.loading();
     axios
       .get(this.newsUrl.toString())
       .then(response => {
         if (response.data && response.data.length > 0) {
           this.news = response.data[0] as News;
-          console.log(this.news);
         }
       })
       .catch(err => {
         console.log(err);
+      })
+      .finally(() => {
+        globalModule.stop();
       });
   }
 }

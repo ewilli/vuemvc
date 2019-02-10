@@ -24,6 +24,7 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<News>>> GetNewsItems()
         {
+            System.Threading.Thread.Sleep(2000);
             return await _context.News.Include(c => c.Articles).ThenInclude(c => c.Source).ToListAsync();
         }
 

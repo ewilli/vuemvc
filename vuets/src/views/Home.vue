@@ -1,8 +1,6 @@
 <template>
   <div class="home">
-    <v-container grid-list-xs>
-      <NewsList :newsUrl="newsUrl"/>
-    </v-container>
+    <NewsList :newsUrl="newsUrl"/>
   </div>
 </template>
 

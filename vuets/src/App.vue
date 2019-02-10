@@ -32,8 +32,9 @@
       <v-container fluid fill-height>
         <v-layout justify-center align-center>
           <v-flex fill-height>
+            <v-progress-linear v-if="showloader" px-5 :indeterminate="true"></v-progress-linear>
             <keep-alive>
-              <router-view/>
+              <router-view/>>
             </keep-alive>
           </v-flex>
         </v-layout>
@@ -47,11 +48,18 @@
 
 <script <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { getModule } from 'vuex-module-decorators';
+import GlobalModule from '@/store/modules/globalModule';
+
+const globalMod = getModule(GlobalModule);
 
 @Component
 export default class App extends Vue {
   @Prop(String) public source!: string; // bei einer Decorator Warning ist das Rootverzeichnis geschachtelt -> Lösung ist einen Workspace zu machen, sodass tslint.config auf der richtigen Ebene liegt
 
-  private drawer = true;
+  private drawer = false;
+  get showloader() {
+    return globalMod.globalState.loadingState;
+  }
 }
 </script>
