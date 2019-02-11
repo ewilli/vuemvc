@@ -28,11 +28,10 @@
               <v-divider dark></v-divider>
               <v-card-actions class="pa-3">Rate this News
                 <v-spacer></v-spacer>
-                <v-icon>star_border</v-icon>
-                <v-icon>star_border</v-icon>
-                <v-icon>star_border</v-icon>
-                <v-icon>star_border</v-icon>
-                <v-icon>star_border</v-icon>
+                <div v-for="i in 5" :key="i">
+                  <v-icon v-if="article.rating >= i" @click="rateNews(article.id, i, $event)">star</v-icon>
+                  <v-icon v-else @click="rateNews(article.id, i, $event)">star_border</v-icon>
+                </div>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -45,12 +44,12 @@
 <script lang="ts">
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Article, News, Source } from '../models/newsModel';
+import { Article, News, Source } from '@/models/newsModel';
 
 import { getModule } from 'vuex-module-decorators';
-import GlobalModule from '@/store/modules/globalModule';  // @ = src
+import GlobalModule from '@/store/modules/globalModule'; // @ = src : config in der tsconfig.json
 
-const globalModule = getModule(GlobalModule);
+const globalStoreModule = getModule(GlobalModule);
 
 @Component({
   components: {},
@@ -82,9 +81,35 @@ export default class NewsList extends Vue {
     return this.news && this.news.id > 0;
   }
 
+  protected rateNews(articleId: number, rating: number, event: Event) {
+    axios
+      .post(`/news/${this.news.id}/article/${articleId}/rating/${rating}`)
+      .then(res => {
+        // so
+        // this.loadData();
+
+        // oder so
+        const index = this.news.articles.findIndex(c => c.id === articleId);
+        // TODO denke nicht, dass der private store hier imutable sein muss -> recherieren
+        const article = { ...this.news.articles[index] };
+        article.rating = rating;
+        Vue.set(this.news.articles, index, article); // reactiv Array set -> oder Array.prototype.splice ...
+
+        // am BESTEN über Store!
+        // TODO
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   protected mounted() {
     console.log('mounted');
-    globalModule.loading();
+    this.loadData();
+  }
+
+  private loadData() {
+    globalStoreModule.loading();
     axios
       .get(this.newsUrl.toString())
       .then(response => {
@@ -96,7 +121,7 @@ export default class NewsList extends Vue {
         console.log(err);
       })
       .finally(() => {
-        globalModule.stop();
+        globalStoreModule.stop();
       });
   }
 }

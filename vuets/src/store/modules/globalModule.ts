@@ -41,7 +41,9 @@ export default class GlobalModule extends VuexModule {
 
   @Mutation
   private updateGlobal(state: GlobalModuleType) {
-    this.global = { ...state };
+    if (this.global.loadingState !== state.loadingState) {
+      this.global = { ...state };
+    }
   }
 
   @Mutation

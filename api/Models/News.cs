@@ -76,7 +76,7 @@ namespace api
         [JsonProperty("id")]
         public int ArticleId { get; set; }
 
-        [JsonIgnore]
+        [JsonProperty("newsId")]
         public int NewsId { get; set; }
 
         [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
@@ -105,6 +105,9 @@ namespace api
 
         [JsonProperty("urlToImage", NullValueHandling = NullValueHandling.Ignore)]
         public string UrlToImage { get; set; }
+
+        [JsonProperty("rating", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Rating { get; set; }
 
         [JsonIgnore]
         public News News { get; set; }

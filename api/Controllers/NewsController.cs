@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api;
+using System.Diagnostics;
 
 namespace api.Controllers
 {
@@ -24,7 +25,7 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<News>>> GetNewsItems()
         {
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(new System.Random(1).Next(3000));
             return await _context.News.Include(c => c.Articles).ThenInclude(c => c.Source).ToListAsync();
         }
 
@@ -50,7 +51,7 @@ namespace api.Controllers
         public async Task<ActionResult<Article>> GetArticleItem(int id, int articleId)
         {
             var item = await _context.Articles.Include(c => c.Source).FirstOrDefaultAsync(c => c.ArticleId == articleId);
-            
+
             if (item == null || item.NewsId != id)
             {
                 return NotFound();
@@ -83,6 +84,29 @@ namespace api.Controllers
 
             return NoContent();
         }
+
+        // POST: api/news/5/article/2
+        [HttpPost("{id}/article/{articleId}/rating/{rating}")]
+        public async Task<IActionResult> PutArticleItem(int id, int articleId, int? rating)
+        {
+
+            if (rating == null)
+                return BadRequest("Rating is null");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Domain
+            var article = _context.Articles.Find(articleId);
+            if (id != article.NewsId)
+            {
+                return BadRequest();
+            }
+            article.Rating = rating;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         // DELETE: api/news/5
         [HttpDelete("{id}")]

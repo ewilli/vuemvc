@@ -24,17 +24,17 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar app fixed clipped-left>
+    <v-toolbar app fixed clipped-left extension-height="0">
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Application</v-toolbar-title>
+      <v-progress-linear v-if="showloader" slot="extension" class="mt-2" :indeterminate="true">Progress</v-progress-linear>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height>
         <v-layout justify-center align-center>
           <v-flex fill-height>
-            <v-progress-linear v-if="showloader" px-5 :indeterminate="true"></v-progress-linear>
             <keep-alive>
-              <router-view/>>
+              <router-view/>
             </keep-alive>
           </v-flex>
         </v-layout>

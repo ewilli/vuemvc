@@ -7,6 +7,7 @@ interface News {
 
 interface Article {
   id: number;
+  newsId: number;
   source: Source;
   author?: string;
   title: string;
@@ -15,6 +16,7 @@ interface Article {
   urlToImage?: string;
   publishedAt: string;
   content?: string;
+  rating?: number;
 }
 
 interface Source {
