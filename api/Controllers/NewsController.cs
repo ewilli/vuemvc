@@ -21,11 +21,12 @@ namespace api.Controllers
 
         // nachfolgender Code wurde noch nicht in eine Domain extrahiert. C > D > M
 
+
+
         // GET: api/news
         [HttpGet]
         public async Task<ActionResult<IEnumerable<News>>> GetNewsItems()
         {
-            System.Threading.Thread.Sleep(new System.Random(1).Next(3000));
             return await _context.News.Include(c => c.Articles).ThenInclude(c => c.Source).ToListAsync();
         }
 
@@ -89,7 +90,6 @@ namespace api.Controllers
         [HttpPost("{id}/article/{articleId}/rating/{rating}")]
         public async Task<IActionResult> PutArticleItem(int id, int articleId, int? rating)
         {
-
             if (rating == null)
                 return BadRequest("Rating is null");
             if (!ModelState.IsValid)

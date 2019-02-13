@@ -46,6 +46,7 @@ namespace api
             }
 
             //app.UseHttpsRedirection();
+            app.UseMiddleware<api.Infrastructure.HeavyLoadMiddleware>(); // TODO Delete - Last am Server emulieren
             app.UseMvc();
 
         }

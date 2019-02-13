@@ -6,6 +6,7 @@ import router from './router';
 import store from './store';
 
 Vue.config.productionTip = false;
+// Vue.config.performance = true; // Usertimings -> Chrome Performance Traces
 
 new Vue({
   router,

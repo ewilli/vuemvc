@@ -25,3 +25,4 @@ interface Source {
 }
 
 export { News, Article, Source };
+export default News;

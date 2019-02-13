@@ -1,5 +1,5 @@
 <template>
-  <div class="grey lighten-3">
+  <div class="grey darken-2">
     <v-toolbar color="teal" dark>
       <v-toolbar-title>News</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -11,7 +11,7 @@
       </v-btn>
     </v-toolbar>
     <div v-if="showNews">
-      <v-card v-for="article in articlesFiltered" :key="article.source.id">
+      <v-card v-for="article in articlesFiltered" :key="article.source.id" class="mb-3 color-teal">
         <v-container fluid grid-list-lg>
           <v-flex xs12>
             <v-card class="white--text">
@@ -29,8 +29,8 @@
               <v-card-actions class="pa-3">Rate this News
                 <v-spacer></v-spacer>
                 <div v-for="i in 5" :key="i">
-                  <v-icon v-if="article.rating >= i" @click="rateNews(article.id, i, $event)">star</v-icon>
-                  <v-icon v-else @click="rateNews(article.id, i, $event)">star_border</v-icon>
+                  <v-icon v-if="article.rating >= i" @click="rateNews(article.id, i, 'if')">star</v-icon>
+                  <v-icon v-else @click="rateNews(article.id, i, 'else')">star_border</v-icon>
                 </div>
               </v-card-actions>
             </v-card>
@@ -44,12 +44,14 @@
 <script lang="ts">
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Article, News, Source } from '@/models/newsModel';
+import { Article, News, Source } from '@/types/news';
 
 import { getModule } from 'vuex-module-decorators';
-import GlobalModule from '@/store/modules/globalModule'; // @ = src : config in der tsconfig.json
+import globalStore from '@/store/modules/global.store'; // @ = src : config in der tsconfig.json
+import newsStore from '@/store/modules/news.store';
 
-const globalStoreModule = getModule(GlobalModule);
+const GlobalStore = getModule(globalStore); // dynamisches Laden des GlobalStoreModule und somit Zugriff auf den globalen Store
+const NewsStore = getModule(newsStore);
 
 @Component({
   components: {},
@@ -57,7 +59,6 @@ const globalStoreModule = getModule(GlobalModule);
 export default class NewsList extends Vue {
   @Prop({ required: true, type: URL }) public newsUrl!: URL;
 
-  protected news: News = {} as News;
   protected searchTerm: string = '';
 
   protected activated() {
@@ -66,6 +67,10 @@ export default class NewsList extends Vue {
 
   protected destroyed() {
     console.log('destroyed');
+  }
+
+  get news() {
+    return NewsStore.getNews;
   }
 
   get articlesFiltered() {
@@ -81,48 +86,19 @@ export default class NewsList extends Vue {
     return this.news && this.news.id > 0;
   }
 
-  protected rateNews(articleId: number, rating: number, event: Event) {
-    axios
-      .post(`/news/${this.news.id}/article/${articleId}/rating/${rating}`)
-      .then(res => {
-        // so
-        // this.loadData();
-
-        // oder so
-        const index = this.news.articles.findIndex(c => c.id === articleId);
-        // TODO denke nicht, dass der private store hier imutable sein muss -> recherieren
-        const article = { ...this.news.articles[index] };
-        article.rating = rating;
-        Vue.set(this.news.articles, index, article); // reactiv Array set -> oder Array.prototype.splice ...
-
-        // am BESTEN über Store!
-        // TODO
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  protected rateNews(articleId: number, rating: number, event: string) {
+    console.log('rateNews' + event);
+    NewsStore.setRating({ id: this.news.id, articleId, rating }).catch(err => {
+      GlobalStore.setErrors([err]);
+    });
   }
 
+  // lifecycle Vue
   protected mounted() {
     console.log('mounted');
-    this.loadData();
-  }
-
-  private loadData() {
-    globalStoreModule.loading();
-    axios
-      .get(this.newsUrl.toString())
-      .then(response => {
-        if (response.data && response.data.length > 0) {
-          this.news = response.data[0] as News;
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      })
-      .finally(() => {
-        globalStoreModule.stop();
-      });
+    GlobalStore.loading()
+      .then(c => NewsStore.loadNews(1))
+      .then(c => GlobalStore.loaded());
   }
 }
 </script>

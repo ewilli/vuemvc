@@ -27,12 +27,20 @@
     <v-toolbar app fixed clipped-left extension-height="0">
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Application</v-toolbar-title>
-      <v-progress-linear v-if="showloader" slot="extension" class="mt-2" :indeterminate="true">Progress</v-progress-linear>
+      <v-progress-linear
+        v-if="showloader"
+        slot="extension"
+        class="mt-2"
+        :indeterminate="true"
+      >Progress</v-progress-linear>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height>
         <v-layout justify-center align-center>
           <v-flex fill-height>
+            <div v-if="errors.length > 0">
+              <div v-for="(err, index) in errors" :key="index">{{err}}</div>
+            </div>
             <keep-alive>
               <router-view/>
             </keep-alive>
@@ -49,9 +57,9 @@
 <script <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { getModule } from 'vuex-module-decorators';
-import GlobalModule from '@/store/modules/globalModule';
+import globalModule from '@/store/modules/global.store';
 
-const globalMod = getModule(GlobalModule);
+const GlobalModule = getModule(globalModule);
 
 @Component
 export default class App extends Vue {
@@ -59,7 +67,11 @@ export default class App extends Vue {
 
   private drawer = false;
   get showloader() {
-    return globalMod.globalState.loadingState;
+    return GlobalModule.getGlobal.loadingState;
+  }
+
+  get errors() {
+    return GlobalModule.getGlobal.errors;
   }
 }
 </script>
