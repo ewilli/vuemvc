@@ -7,6 +7,7 @@
 <script lang="ts">
 import NewsList from '@/components/NewsList.vue';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import axios from 'axios';
 
 @Component({
   components: {
@@ -15,7 +16,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 })
 export default class Home extends Vue {
   private get newsUrl() {
-    return new URL('http://localhost:5000/api/news');
+    return new URL(`${axios.defaults.baseURL}/api/news`);
   }
 }
 </script>

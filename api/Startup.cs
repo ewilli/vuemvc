@@ -38,6 +38,7 @@ namespace api
             if (env.IsDevelopment()) // -> Dev, Staging, Prod
             {
                 app.UseDeveloperExceptionPage();
+                app.UseMiddleware<api.Infrastructure.HeavyLoadMiddleware>(); // TODO TO Delete - Last am Server emulieren
             }
             else
             {
@@ -46,7 +47,6 @@ namespace api
             }
 
             //app.UseHttpsRedirection();
-            app.UseMiddleware<api.Infrastructure.HeavyLoadMiddleware>(); // TODO Delete - Last am Server emulieren
             app.UseMvc();
 
         }

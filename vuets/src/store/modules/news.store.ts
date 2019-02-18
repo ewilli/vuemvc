@@ -1,10 +1,15 @@
-import { Module, VuexModule, Action, Mutation } from 'vuex-module-decorators';
+import { Module, VuexModule, Action, Mutation, getModule } from 'vuex-module-decorators';
 import store from '../index';
 import * as feed from '@/types/news';
 import axios from 'axios';
+// import clonedeep from 'lodash.clonedeep';
 
-@Module({ dynamic: true, store, name: 'NewsModel' })
-export default class NewsModel extends VuexModule {
+function getIndexOfArticle(news: feed.News, id: number): number {
+  return news.articles.findIndex(c => c.id === id);
+}
+
+@Module({ namespaced: true, dynamic: true, store, name: 'NewsModule' })
+class NewsModule extends VuexModule {
   private news = {} as feed.News;
 
   get getNews() {
@@ -16,31 +21,45 @@ export default class NewsModel extends VuexModule {
     return axios.get(`/news/${id}`).then(response => {
       if (response.data) {
         this.context.commit('updateNews', response.data as feed.News);
+      } else {
+        this.context.commit('updateNews', {});
       }
     });
   }
 
-  @Action({ rawError: true})
-  public async setRating(payload: any) {
-    const index = this.news.articles.findIndex(c => c.id === payload.articleId);
-    const article = this.news.articles[index];
-    const ratedNews = { ...this.news }; // News = Clone, Articles = ShallowCopy :-()
-
-    article.rating = payload.rating;
-    ratedNews.articles.splice(index, 1, article);
-
-    this.context.commit('updateNews', ratedNews);
+  @Action({ rawError: true })
+  public async setRating(payload: feed.Rating) {
+    this.context.commit('updateRating', payload);
 
     await axios
-      .post(`/news/${payload.id}/article/${payload.articleId}/rating/${payload.rating}`)
+      .post(`/news/${payload.newsId}/article/${payload.id}/rating/${payload.rating}`)
       .catch(err => {
-        this.loadNews(ratedNews.id);
+        console.log(err);
+        this.loadNews(payload.newsId);
         throw err;
       });
   }
 
   @Mutation
+  private updateRating(rating: feed.Rating) {
+    console.log('updateRating');
+
+    const idx = getIndexOfArticle(this.news, rating.id);
+    console.log(idx);
+    this.news.articles[idx].rating = rating.rating;
+  }
+
+  @Mutation
+  private updateArticle(article: feed.Article) {
+    console.log('updateArticle');
+    this.news.articles.splice(getIndexOfArticle(this.news, article.id), 1, article);
+  }
+
+  @Mutation
   private updateNews(news: feed.News) {
-    this.news = Object.freeze(news);
+    console.log('updateNews');
+    this.news = news;
   }
 }
+
+export default getModule(NewsModule);

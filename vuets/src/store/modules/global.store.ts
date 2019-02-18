@@ -3,6 +3,7 @@ import {
   VuexModule,
   Mutation,
   Action,
+  getModule,
   // MutationAction,
 } from 'vuex-module-decorators';
 import store from '../index';
@@ -17,8 +18,8 @@ export interface IGlobalModuleType {
 
 const globalInit = { loadingState: false, loadingText: '', errors: [] } as IGlobalModuleType;
 
-@Module({ dynamic: true, store, name: 'GlobalModule' })
-export default class GlobalModule extends VuexModule {
+@Module({ namespaced: true, dynamic: true, store, name: 'GlobalModule' })
+class GlobalModule extends VuexModule {
   private global = globalInit;
 
   get getGlobal() {
@@ -64,3 +65,5 @@ export default class GlobalModule extends VuexModule {
     };
   }
 }
+
+export default getModule(GlobalModule);

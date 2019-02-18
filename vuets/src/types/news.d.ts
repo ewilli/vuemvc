@@ -1,13 +1,22 @@
-interface News {
+interface Ident {
   id: number;
+}
+
+interface NewsIdent {
+  newsId: number;
+}
+
+interface News extends Ident {
   status: string;
   totalResults: number;
   articles: Article[];
 }
 
-interface Article {
-  id: number;
-  newsId: number;
+interface Rating extends Ident, NewsIdent {
+  rating?: number;
+}
+
+interface Article extends Rating, Ident, NewsIdent {
   source: Source;
   author?: string;
   title: string;
@@ -16,13 +25,11 @@ interface Article {
   urlToImage?: string;
   publishedAt: string;
   content?: string;
-  rating?: number;
 }
 
-interface Source {
-  id: number;
+interface Source extends Ident {
   name: string;
 }
 
-export { News, Article, Source };
+export { News, Article, Source, Rating };
 export default News;

@@ -22,7 +22,8 @@ namespace api.Infrastructure
         private void BeginInvoke(HttpContext context)
         {
             // Do custom work before controller execution
-            System.Threading.Thread.Sleep(new System.Random(1).Next(3000));
+            var rand = new System.Random(1).Next(3000);
+            System.Threading.Thread.Sleep(rand);
         }
 
         private void EndInvoke(HttpContext context)

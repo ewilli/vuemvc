@@ -46,12 +46,8 @@ import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Article, News, Source } from '@/types/news';
 
-import { getModule } from 'vuex-module-decorators';
 import globalStore from '@/store/modules/global.store'; // @ = src : config in der tsconfig.json
 import newsStore from '@/store/modules/news.store';
-
-const GlobalStore = getModule(globalStore); // dynamisches Laden des GlobalStoreModule und somit Zugriff auf den globalen Store
-const NewsStore = getModule(newsStore);
 
 @Component({
   components: {},
@@ -70,7 +66,7 @@ export default class NewsList extends Vue {
   }
 
   get news() {
-    return NewsStore.getNews;
+    return newsStore.getNews;
   }
 
   get articlesFiltered() {
@@ -88,17 +84,20 @@ export default class NewsList extends Vue {
 
   protected rateNews(articleId: number, rating: number, event: string) {
     console.log('rateNews' + event);
-    NewsStore.setRating({ id: this.news.id, articleId, rating }).catch(err => {
-      GlobalStore.setErrors([err]);
-    });
+    newsStore
+      .setRating({ newsId: this.news.id, id: articleId, rating })
+      .catch(err => {
+        globalStore.setErrors([err]);
+      });
   }
 
   // lifecycle Vue
   protected mounted() {
     console.log('mounted');
-    GlobalStore.loading()
-      .then(c => NewsStore.loadNews(1))
-      .then(c => GlobalStore.loaded());
+    globalStore
+      .loading()
+      .then(c => newsStore.loadNews(1))
+      .then(c => globalStore.loaded());
   }
 }
 </script>

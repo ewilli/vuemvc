@@ -41,9 +41,9 @@
             <div v-if="errors.length > 0">
               <div v-for="(err, index) in errors" :key="index">{{err}}</div>
             </div>
-            <keep-alive>
+            <!-- <keep-alive> -->
               <router-view/>
-            </keep-alive>
+            <!-- </keep-alive> -->
           </v-flex>
         </v-layout>
       </v-container>
@@ -56,10 +56,7 @@
 
 <script <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { getModule } from 'vuex-module-decorators';
 import globalModule from '@/store/modules/global.store';
-
-const GlobalModule = getModule(globalModule);
 
 @Component
 export default class App extends Vue {
@@ -67,11 +64,11 @@ export default class App extends Vue {
 
   private drawer = false;
   get showloader() {
-    return GlobalModule.getGlobal.loadingState;
+    return globalModule.getGlobal.loadingState;
   }
 
   get errors() {
-    return GlobalModule.getGlobal.errors;
+    return globalModule.getGlobal.errors;
   }
 }
 </script>
