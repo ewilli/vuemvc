@@ -18,7 +18,7 @@ export interface IGlobalModuleType {
 
 const globalInit = { loadingState: false, loadingText: '', errors: [] } as IGlobalModuleType;
 
-@Module({ namespaced: true, dynamic: true, store, name: 'GlobalModule' })
+@Module({ namespaced: true, dynamic: true, store, name: 'global' })
 class GlobalModule extends VuexModule {
   private global = globalInit;
 
@@ -66,4 +66,8 @@ class GlobalModule extends VuexModule {
   }
 }
 
-export default getModule(GlobalModule);
+export default getModule(GlobalModule, store);
+
+if (module.hot) {
+  module.hot.decline();
+}

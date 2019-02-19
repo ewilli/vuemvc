@@ -8,16 +8,18 @@ function getIndexOfArticle(news: feed.News, id: number): number {
   return news.articles.findIndex(c => c.id === id);
 }
 
-@Module({ namespaced: true, dynamic: true, store, name: 'NewsModule' })
+@Module({ namespaced: true, dynamic: true, store, name: 'news' })
 class NewsModule extends VuexModule {
   private news = {} as feed.News;
 
   get getNews() {
+    console.log('@Getter:getNews');
     return this.news;
   }
 
   @Action
   public async loadNews(id: number) {
+    console.log('@Action:loadNews');
     return axios.get(`/news/${id}`).then(response => {
       if (response.data) {
         this.context.commit('updateNews', response.data as feed.News);
@@ -29,6 +31,7 @@ class NewsModule extends VuexModule {
 
   @Action({ rawError: true })
   public async setRating(payload: feed.Rating) {
+    console.log('@Action:setRating');
     this.context.commit('updateRating', payload);
 
     await axios
@@ -42,24 +45,25 @@ class NewsModule extends VuexModule {
 
   @Mutation
   private updateRating(rating: feed.Rating) {
-    console.log('updateRating');
-
-    const idx = getIndexOfArticle(this.news, rating.id);
-    console.log(idx);
-    this.news.articles[idx].rating = rating.rating;
+    console.log('@Mutation:updateRating');
+    this.news.articles[getIndexOfArticle(this.news, rating.id)].rating = rating.rating;
   }
 
   @Mutation
   private updateArticle(article: feed.Article) {
-    console.log('updateArticle');
+    console.log('@Mutation:updateArticle');
     this.news.articles.splice(getIndexOfArticle(this.news, article.id), 1, article);
   }
 
   @Mutation
   private updateNews(news: feed.News) {
-    console.log('updateNews');
+    console.log('@Mutation:updateNews');
     this.news = news;
   }
 }
 
 export default getModule(NewsModule);
+
+if (module.hot) {
+  module.hot.decline();
+}
