@@ -1,6 +1,6 @@
 # vuemvc
 
-Typescript sample using Vue CLI, Vuex and DotNet Core with Entityframework Code backend
+Typescript sample using vue CLI, vuex, decorators and dotnet core with entityframework core for backend
 
 ## requirements
 * dotnet core 2.2
@@ -11,6 +11,7 @@ api:
 * dotnet restore
 * dotnet ef database update
 * dotnet run
+
 vuets: 
 * npm install
 * npm run serve
