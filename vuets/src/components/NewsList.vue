@@ -17,21 +17,17 @@
             <v-card class="white--text">
               <v-layout row>
                 <v-flex xs7>
-                  <v-card-title primary-title>
-                    <div>
-                      <div class="headline">{{article.title}}</div>
-                      <div>{{article.description}}</div>
-                    </div>
-                  </v-card-title>
+                  <NewsItem :title="article.title" :description="article.description"></NewsItem>
                 </v-flex>
               </v-layout>
               <v-divider dark></v-divider>
               <v-card-actions class="pa-3">Rate this News
                 <v-spacer></v-spacer>
-                <div v-for="i in 5" :key="i">
-                  <v-icon v-if="article.rating >= i" @click="rateNews(article.id, i, 'if')">star</v-icon>
-                  <v-icon v-else @click="rateNews(article.id, i, 'else')">star_border</v-icon>
-                </div>
+                <Rating
+                  :stars="stars"
+                  :rating="article.rating"
+                  @rate="rateNews($event, article.id )"
+                />
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -42,28 +38,23 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Article, News, Source } from '@/types/news';
 
-import globalStore from '@/store/modules/global.store'; // @ = src : config in der tsconfig.json
+import NewsItem from './NewsItem.vue';
+import Rating from './common/Rating.vue';
+
+import globalStore from '@/store/modules/global.store'; // @ = src > config in tsconfig.json
 import newsStore from '@/store/modules/news.store';
 
 @Component({
-  components: {},
+  components: { NewsItem, Rating },
 })
 export default class NewsList extends Vue {
   @Prop({ required: true, type: URL }) public newsUrl!: URL;
+  @Prop({ default: 5 }) public stars!: number;
 
-  protected searchTerm: string = '';
-
-  protected activated() {
-    console.log('activated'); // nur bei keep-alive
-  }
-
-  protected destroyed() {
-    console.log('destroyed');
-  }
+  protected searchTerm: string = ''; // reactive
 
   get news() {
     return newsStore.getNews;
@@ -82,8 +73,8 @@ export default class NewsList extends Vue {
     return this.news && this.news.id > 0;
   }
 
-  protected rateNews(articleId: number, rating: number, event: string) {
-    console.log('rateNews' + event);
+  protected rateNews(rating: number, articleId: number) {
+    console.debug(`rateNews: ${rating} / ${articleId}`);
     newsStore
       .setRating({ newsId: this.news.id, id: articleId, rating })
       .catch(err => {
@@ -92,12 +83,28 @@ export default class NewsList extends Vue {
   }
 
   // lifecycle Vue
+  protected created() {
+    console.debug('created');
+  }
+
   protected mounted() {
-    console.log('mounted');
+    console.debug('mounted');
     globalStore
       .loading()
       .then(c => newsStore.loadNews(1))
       .then(c => globalStore.loaded());
+  }
+
+  protected activated() {
+    console.debug('activated'); // only for keep-alive
+  }
+
+  protected deactivated() {
+    console.debug('deactivated'); // only for keep-alive
+  }
+
+  protected destroyed() {
+    console.debug('destroyed');
   }
 }
 </script>

@@ -41,15 +41,15 @@
             <div v-if="errors.length > 0">
               <div v-for="(err, index) in errors" :key="index">{{err}}</div>
             </div>
-            <!-- <keep-alive> -->
+            <keep-alive>
               <router-view/>
-            <!-- </keep-alive> -->
+            </keep-alive>
           </v-flex>
         </v-layout>
       </v-container>
     </v-content>
     <v-footer app fixed>
-      <span>&copy; 2017</span>
+      <span>&copy; 2019</span>
     </v-footer>
   </v-app>
 </template>
@@ -60,7 +60,7 @@ import globalModule from '@/store/modules/global.store';
 
 @Component
 export default class App extends Vue {
-  @Prop(String) public source!: string; // bei einer Decorator Warning ist das Rootverzeichnis geschachtelt -> Lösung ist einen Workspace zu machen, sodass tslint.config auf der richtigen Ebene liegt
+  @Prop(String) public source!: string; // if Decorator warning -> Rootdirectory is hierarchic; Solution: Workspace for VSCode!
 
   private drawer = false;
   get showloader() {

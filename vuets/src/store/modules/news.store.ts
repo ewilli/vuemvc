@@ -64,6 +64,6 @@ class NewsModule extends VuexModule {
 
 export default getModule(NewsModule);
 
-if (module.hot) {
+if (module.hot) { // workaround for getModule hot reload problem
   module.hot.decline();
 }

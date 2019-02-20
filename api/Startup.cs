@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -26,26 +27,29 @@ namespace api
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             var connection = Configuration.GetConnectionString("NewsDatabase");
-            //Hier die DI für die Controller!
+            // DI for controllers
             services.AddDbContext<api.NewsContext>
                 (options => options.UseSqlite(connection));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseCors(c => { c.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:8080"); });
-            if (env.IsDevelopment()) // -> Dev, Staging, Prod
+
+            if (env.IsDevelopment())
             {
+                app.UseCors(c => { c.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:8080"); });
                 app.UseDeveloperExceptionPage();
-                app.UseMiddleware<api.Infrastructure.HeavyLoadMiddleware>(); // TODO TO Delete - Last am Server emulieren
+
+                Debug.Print("Start emulating heavy load...");
+                app.UseMiddleware<api.Infrastructure.HeavyLoadMiddleware>();
             }
             else
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             //app.UseHttpsRedirection();
             app.UseMvc();
 
