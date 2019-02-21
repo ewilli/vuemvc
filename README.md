@@ -4,7 +4,7 @@ Typescript sample using vue CLI, vuex, decorators and dotnet core with entityfra
 
 ## requirements
 * dotnet core 2.2
-* notejs v11.3
+* nodejs v11.3
 
 ## build and run with
 api: 
