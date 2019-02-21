@@ -1,4 +1,4 @@
-# vuemvc
+# vuenet
 
 Typescript sample using vue CLI, vuex, decorators and dotnet core with entityframework core for backend
 
