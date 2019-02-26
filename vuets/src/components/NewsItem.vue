@@ -1,9 +1,9 @@
 <template>
   <v-card-title primary-title>
-    <div>
+    <uploader :news-id="newsId" :article-id="articleId">
       <div class="headline">{{title}}</div>
       <div>{{description}}</div>
-    </div>
+    </uploader>
   </v-card-title>
 </template>
 
@@ -11,8 +11,16 @@
 import Vue from 'vue';
 import { Prop, Component } from 'vue-property-decorator';
 
-@Component
+import uploader from './common/Uploader.vue';
+
+@Component({
+  components: {
+    uploader,
+  },
+})
 export default class NewsItem extends Vue {
+  @Prop(Number) public newsId!: number;
+  @Prop(Number) public articleId!: number;
   @Prop(String) public title!: string;
   @Prop(String) public description!: string;
 }

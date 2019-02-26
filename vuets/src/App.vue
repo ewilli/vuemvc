@@ -32,14 +32,16 @@
         slot="extension"
         class="mt-2"
         :indeterminate="true"
-      >Progress</v-progress-linear>
+      ></v-progress-linear>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height>
         <v-layout justify-center align-center>
           <v-flex fill-height>
             <div v-if="errors.length > 0">
-              <div v-for="(err, index) in errors" :key="index">{{err}}</div>
+              <div class="mb-2" v-for="(err, index) in errors" :key="index">
+                <v-alert :value="true" type="error">{{err}}</v-alert>
+              </div>
             </div>
             <keep-alive>
               <router-view/>
@@ -56,7 +58,8 @@
 
 <script <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import globalModule from '@/store/modules/global.store';
+import globalStore from '@/store/modules/global.store';
+import { AxiosError } from 'axios';
 
 @Component
 export default class App extends Vue {
@@ -64,11 +67,21 @@ export default class App extends Vue {
 
   private drawer = false;
   get showloader() {
-    return globalModule.getGlobal.loadingState;
+    return globalStore.getGlobal.loadingState;
+  }
+
+  // Type Guards -> https://www.typescriptlang.org/docs/handbook/advanced-types.html
+  private isAxiosError(error: string | AxiosError): error is AxiosError {
+    return (error as AxiosError).message !== undefined;
   }
 
   get errors() {
-    return globalModule.getGlobal.errors;
+    return globalStore.getGlobal.errors.map(c => {
+      if (this.isAxiosError(c)) {
+        return 'Verbindungsproblem: ' + c.message;
+      }
+      return c;
+    });
   }
 }
 </script>

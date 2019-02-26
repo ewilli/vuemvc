@@ -14,7 +14,7 @@ import { Prop, Component, Emit } from 'vue-property-decorator';
 @Component
 export default class Rating extends Vue {
   @Prop({ default: 5 }) public stars!: number;
-  @Prop({ required: true, type: Number }) public rating!: number;
+  @Prop({ required: false, type: [Number] }) public rating!: number;
 
   @Emit()
   public rate(rated: number) {
@@ -22,6 +22,7 @@ export default class Rating extends Vue {
   }
 
   protected created() {
+    console.log(this.rating);
     if (this.stars < 0 || this.stars > 15) {
       this.stars = 5;
     }

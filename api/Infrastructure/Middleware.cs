@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -21,9 +22,10 @@ namespace api.Infrastructure
 
         private void BeginInvoke(HttpContext context)
         {
-            // Do custom work before controller execution
-            var rand = new System.Random(1).Next(3000);
+            var rand = new System.Random().Next(3000);
             System.Threading.Thread.Sleep(rand);
+            // if (rand < 500)
+            //     throw new System.Exception("Pech gehapt!");
         }
 
         private void EndInvoke(HttpContext context)

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using api;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 
 namespace api.Controllers
 {
@@ -13,6 +15,7 @@ namespace api.Controllers
     public class NewsController : ControllerBase
     {
         private readonly NewsContext _context;
+        // https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/create-a-rest-api-with-attribute-routing
 
         public NewsController(NewsContext context)
         {
@@ -87,11 +90,34 @@ namespace api.Controllers
         }
 
         // POST: api/news/5/article/2
-        [HttpPost("{id}/article/{articleId}/rating/{rating}")]
-        public async Task<IActionResult> PutArticleItem(int id, int articleId, int? rating)
+        [HttpPut("{id}/article/{articleId}/rating")]
+        public async Task<IActionResult> PutArticleItemRating(int id, int articleId, [FromBody] JObject rating)
         {
-            if (rating == null)
-                return BadRequest("Rating is null");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (rating?["rating"] == null || rating["rating"].ToString() == "")
+                return BadRequest("rating");
+
+
+            // Domain
+            var article = _context.Articles.Find(articleId);
+            if (id != article.NewsId)
+            {
+                return BadRequest();
+            }
+            article.Rating = rating["rating"].ToObject<int>();
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // POST: api/news/5/article/2/file
+        [HttpPost("{id}/article/{articleId}/document")]
+        public async Task<IActionResult> PostArticleDocumentItem(int id, int articleId, [FromForm] IFormFile fileBlob)
+        {
+            if (fileBlob == null || fileBlob.Length == 0)
+                return BadRequest("fileBlob is null");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -101,10 +127,35 @@ namespace api.Controllers
             {
                 return BadRequest();
             }
-            article.Rating = rating;
+
+            byte[] file;
+            using (var stream = new System.IO.MemoryStream())
+            {
+                await fileBlob.CopyToAsync(stream);
+                file = stream.ToArray();
+            }
+
+            var document = new Document
+            {
+                ArticleId = articleId,
+                File = file
+            };
+            _context.Add(document);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return CreatedAtAction(nameof(document), new { documentId = document.DocumentId });
+        }
+
+        [HttpGet("{id}/article/{articleId}/document/{documentId}")]
+        public async Task<ActionResult<Document>> GetArticleDocument(int id, int articleId, int documentId)
+        {
+            var document = await _context.Documents.FindAsync(articleId);
+            if (document == null || articleId != document.ArticleId)
+            {
+                return NotFound();
+            }
+
+            return document;
         }
 
 

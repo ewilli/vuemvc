@@ -7,53 +7,65 @@ import {
   // MutationAction,
 } from 'vuex-module-decorators';
 import store from '../index';
-
-export interface IGlobalModuleType {
-  loadingState: boolean;
-  loadingText: string;
-  errors: string[];
-}
+import { Errors, Loading, Global } from '@/types/global';
+import { AxiosResponse } from 'axios';
 
 // https://championswimmer.in/vuex-module-decorators/pages/overview.html
 
-const globalInit = { loadingState: false, loadingText: '', errors: [] } as IGlobalModuleType;
+const globalInit = { loadingState: false, loadingText: '', errors: [] } as Global;
 
 @Module({ namespaced: true, dynamic: true, store, name: 'global' })
-class GlobalModule extends VuexModule {
+class GlobalVuexModule extends VuexModule {
   private global = globalInit;
 
   get getGlobal() {
     return this.global;
   }
 
-  @Action
-  public async loading() {
-    this.context.commit('updateGlobal', {
-      ...this.getGlobal,
+  @Action({ commit: 'updateLoading' })
+  public async loading(loadingText?: string) {
+    return {
       loadingState: true,
-      loadingText: 'Lade....',
-    });
+      loadingText: loadingText || 'Lade....',
+    } as Loading;
   }
 
-  // action 'stop' commits mutation 'cancel' when done with return value as payload
-  @Action({ commit: 'cancelLoading' })
+  @Action({ commit: 'updateLoading' })
   public async loaded() {
-    return;
+    return {
+      loadingState: globalInit.loadingState,
+      loadingText: globalInit.loadingText,
+    } as Loading;
   }
 
-  @Action({ commit: 'updateGlobalErrors' })
-  public setErrors(errors: string[]) {
+  @Action({ commit: 'updateErrors' })
+  public setErrors(errors: Errors) {
+    console.debug(errors);
     return errors;
   }
 
+  @Action({ commit: 'updateErrors' })
+  public async resetErrors() {
+    return { errors: [] };
+  }
+
   @Mutation
-  private updateGlobal(state: IGlobalModuleType) {
+  private update(state: Global) {
     this.global = { ...state };
   }
 
   @Mutation
-  private updateGlobalErrors(state: string[]) {
-    this.global = { ...this.global, errors: state };
+  private updateLoading(state: Loading) {
+    this.global = {
+      ...this.global,
+      loadingState: state.loadingState,
+      loadingText: state.loadingText,
+    };
+  }
+
+  @Mutation
+  private updateErrors(state: Errors) {
+    this.global = { ...this.global, errors: state.errors };
   }
 
   @Mutation
@@ -66,7 +78,7 @@ class GlobalModule extends VuexModule {
   }
 }
 
-export default getModule(GlobalModule, store);
+export default getModule(GlobalVuexModule, store);
 
 if (module.hot) {
   module.hot.decline();

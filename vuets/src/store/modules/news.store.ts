@@ -2,6 +2,7 @@ import { Module, VuexModule, Action, Mutation, getModule } from 'vuex-module-dec
 import store from '../index';
 import * as feed from '@/types/news';
 import axios from 'axios';
+import api from '../api';
 // import clonedeep from 'lodash.clonedeep';
 
 function getIndexOfArticle(news: feed.News, id: number): number {
@@ -20,7 +21,7 @@ class NewsModule extends VuexModule {
   @Action
   public async loadNews(id: number) {
     console.log('@Action:loadNews');
-    return axios.get(`/news/${id}`).then(response => {
+    return api.news.getItem(id).then(response => {
       if (response.data) {
         this.context.commit('updateNews', response.data as feed.News);
       } else {
@@ -29,18 +30,18 @@ class NewsModule extends VuexModule {
     });
   }
 
-  @Action({ rawError: true })
+  @Action({ rawError: true }) // rawError does not decorate the error - so you are able to get the raw error from the action
   public async setRating(payload: feed.Rating) {
     console.log('@Action:setRating');
     this.context.commit('updateRating', payload);
 
-    await axios
-      .post(`/news/${payload.newsId}/article/${payload.id}/rating/${payload.rating}`)
-      .catch(err => {
-        console.log(err);
-        this.loadNews(payload.newsId);
-        throw err;
+    return api.article.putFeedRating(payload).catch(err => {
+      console.log(err);
+      this.loadNews(payload.newsId).catch(() => {
+        this.context.commit('updateNews', {});
       });
+      throw err; // rethrow for possible outer catch
+    });
   }
 
   @Mutation
@@ -64,6 +65,7 @@ class NewsModule extends VuexModule {
 
 export default getModule(NewsModule);
 
-if (module.hot) { // workaround for getModule hot reload problem
+if (module.hot) {
+  // workaround for getModule hot reload problem
   module.hot.decline();
 }

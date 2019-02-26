@@ -17,7 +17,12 @@
             <v-card class="white--text">
               <v-layout row>
                 <v-flex xs7>
-                  <NewsItem :title="article.title" :description="article.description"></NewsItem>
+                  <NewsItem
+                    :title="article.title"
+                    :description="article.description"
+                    :newsId="article.newsId"
+                    :articleId="article.id"
+                  ></NewsItem>
                 </v-flex>
               </v-layout>
               <v-divider dark></v-divider>
@@ -54,7 +59,7 @@ export default class NewsList extends Vue {
   @Prop({ required: true, type: URL }) public newsUrl!: URL;
   @Prop({ default: 5 }) public stars!: number;
 
-  protected searchTerm: string = ''; // reactive
+  protected searchTerm: string = ''; // reactive - warning! undefined is *not* reactive but null is
 
   get news() {
     return newsStore.getNews;
@@ -77,8 +82,11 @@ export default class NewsList extends Vue {
     console.debug(`rateNews: ${rating} / ${articleId}`);
     newsStore
       .setRating({ newsId: this.news.id, id: articleId, rating })
+      .then(() => {
+        globalStore.resetErrors();
+      })
       .catch(err => {
-        globalStore.setErrors([err]);
+        globalStore.setErrors({ errors: [err] });
       });
   }
 

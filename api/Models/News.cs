@@ -13,6 +13,8 @@ namespace api
         public DbSet<News> News { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Source> Source { get; set; }
+        public DbSet<Document> Documents { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=News.db"); // Legt die InitDB an
@@ -79,10 +81,10 @@ namespace api
         [JsonProperty("newsId")]
         public int NewsId { get; set; }
 
-        [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("author", NullValueHandling = NullValueHandling.Include)]
         public string Author { get; set; }
 
-        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("content", NullValueHandling = NullValueHandling.Include)]
         public string Content { get; set; }
 
         [JsonProperty("description")]
@@ -103,14 +105,17 @@ namespace api
         [JsonProperty("url")]
         public string Url { get; set; }
 
-        [JsonProperty("urlToImage", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("urlToImage", NullValueHandling = NullValueHandling.Include)]
         public string UrlToImage { get; set; }
 
-        [JsonProperty("rating", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("rating", NullValueHandling = NullValueHandling.Include)]
         public int? Rating { get; set; }
 
         [JsonIgnore]
         public News News { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Document> Documents { get; set; }
 
     }
 
@@ -122,6 +127,18 @@ namespace api
         [JsonProperty("name")]
         public string Name { get; set; }
 
+    }
+
+    public partial class Document
+    {
+        [JsonProperty("id")]
+        public int DocumentId { get; set; }
+
+        [JsonProperty("articleId")]
+        public int ArticleId { get; set; }
+
+        [JsonProperty("fileBlob")]
+        public byte[] File { get; set; }
     }
 
 }
