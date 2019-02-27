@@ -12,7 +12,7 @@ import { AxiosResponse } from 'axios';
 
 // https://championswimmer.in/vuex-module-decorators/pages/overview.html
 
-const globalInit = { loadingState: false, loadingText: '', errors: [] } as Global;
+const globalInit = { loadingState: false, loadingText: '', errors: [], fail: false } as Global;
 
 @Module({ namespaced: true, dynamic: true, store, name: 'global' })
 class GlobalVuexModule extends VuexModule {
@@ -39,14 +39,13 @@ class GlobalVuexModule extends VuexModule {
   }
 
   @Action({ commit: 'updateErrors' })
-  public setErrors(errors: Errors) {
-    console.debug(errors);
-    return errors;
+  public setErrors(err: Errors) {
+    return err;
   }
 
   @Action({ commit: 'updateErrors' })
   public async resetErrors() {
-    return { errors: [] };
+    return { errors: [], fail: false };
   }
 
   @Mutation
@@ -65,7 +64,7 @@ class GlobalVuexModule extends VuexModule {
 
   @Mutation
   private updateErrors(state: Errors) {
-    this.global = { ...this.global, errors: state.errors };
+    this.global = { ...this.global, errors: state.errors, fail: state.fail };
   }
 
   @Mutation

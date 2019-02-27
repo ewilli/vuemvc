@@ -2,6 +2,7 @@ import { Module, VuexModule, Action, Mutation, getModule } from 'vuex-module-dec
 import store from '../index';
 import * as feed from '@/types/news';
 import api from '../api';
+import globalStore from './global.store';
 // import clonedeep from 'lodash.clonedeep';
 
 function getIndexOfArticle(news: feed.News, id: number): number {
@@ -32,13 +33,16 @@ class NewsModule extends VuexModule {
   @Action({ rawError: true }) // rawError does not decorate the error - so you are able to get the raw error from the action
   public async setRating(payload: feed.Rating) {
     console.debug('@Action:setRating');
+
+    const oldrating = this.news.articles.find(c => c.id === payload.id)!.rating; // https://stackoverflow.com/a/40361053 for !.
+
     this.context.commit('updateRating', payload);
 
     return api.article.putFeedRating(payload).catch(err => {
       console.debug(err);
-      this.loadNews(payload.newsId).catch(() => {
-        this.context.commit('updateNews', {}); // dead end...
-      });
+      // this.loadNews(payload.newsId).catch(() => {
+      this.context.commit('updateRating', { ...payload, rating: oldrating });
+      // });
       throw err; // rethrow for possible outer catch
     });
   }

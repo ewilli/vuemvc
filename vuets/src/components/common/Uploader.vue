@@ -5,6 +5,7 @@
       <v-icon aria-hidden="true">add_a_photo</v-icon>
     </v-btn>
     <input
+      hidden
       id="files"
       type="file"
       name="file"
@@ -29,47 +30,52 @@
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
 
 export default {
   props: { newsId: Number, articleId: Number },
-  // data() {
-  //   return {
-  //     progressUpload: 0,
-  //     fileName: '',
-  //     uploading: false,
-  //     uploadEnd: false,
-  //     downloadURL: '',
-  //   };
-  // },
-  // methods: {
-  //   selectFile() {
-  //     this.$refs.uploadInput.click();
+  //   data() {
+  //     return {
+  //       progressUpload: 0,
+  //       fileName: '',
+  //       uploading: false,
+  //       uploadEnd: false,
+  //       downloadURL: '',
+  //     };
   //   },
-  //   detectFiles(e) {
-  //     const fileList = e.target.files || e.dataTransfer.files;
-  //     Array.from(Array(fileList.length).keys()).map(x => {
-  //       this.upload(fileList[x]);
-  //     });
-  //   },
-  //   upload(file) {
-  //     console.log(this.fileName);
-  //     this.fileName = file.name;
-  //     this.uploading = true;
-
-  //     let formData = new FormData();
-  //     formData.append('fileBlob', file);
-
-  //     axios
-  //       .post(`/news/${this.newsId}/article/${this.articleId}/file`, formData, {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //       })
-  //       .finally(() => {
-  //         this.uploading = false;
+  //   methods: {
+  //     selectFile() {
+  //       this.$refs.uploadInput.click();
+  //     },
+  //     detectFiles(e) {
+  //       const fileList = e.target.files || e.dataTransfer.files;
+  //       Array.from(Array(fileList.length).keys()).map(x => {
+  //         this.upload(fileList[x]);
   //       });
+  //     },
+  //     upload(file) {
+  //       console.debug('start upload: ' + file.name);
+
+  //       this.fileName = file.name;
+  //       this.uploading = true;
+
+  //       const formData = new FormData();
+  //       formData.append('fileBlob', file);
+
+  //       axios
+  //         .post(
+  //           `/news/${this.newsId}/article/${this.articleId}/document`,
+  //           formData,
+  //           {
+  //             headers: {
+  //               'Content-Type': 'multipart/form-data',
+  //             },
+  //           },
+  //         )
+  //         .finally(() => {
+  //           this.uploading = false;
+  //         });
+  //     },
   //   },
-  // },
 };
 </script>

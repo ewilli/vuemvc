@@ -86,7 +86,7 @@ export default class NewsList extends Vue {
         globalStore.resetErrors();
       })
       .catch(err => {
-        globalStore.setErrors({ errors: [err] });
+        globalStore.setErrors({ errors: [err], fail: false });
       });
   }
 

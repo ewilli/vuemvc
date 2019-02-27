@@ -120,9 +120,9 @@ namespace api.Controllers
             return NoContent();
         }
 
-        // POST: api/news/5/article/2/file
+        // POST: api/news/5/article/2/document
         [HttpPost("{id}/article/{articleId}/document")]
-        public async Task<IActionResult> PostArticleDocumentItem(int id, int articleId, [FromForm] IFormFile fileBlob)
+        public async Task<IActionResult> PostArticleDocumentItem([FromRoute] int id, [FromRoute] int articleId, [FromForm] IFormFile fileBlob)
         {
             if (fileBlob == null || fileBlob.Length == 0)
                 return BadRequest("fileBlob is null");

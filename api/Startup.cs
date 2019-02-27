@@ -41,7 +41,7 @@ namespace api
             {
                 app.UseCors(c => { c.AllowAnyHeader().AllowAnyMethod().WithOrigins(Configuration.GetSection("Appsettings")?["CorsHost"] ?? ""); });
                 app.UseDeveloperExceptionPage();
-                app.UseMiddleware<Infrastructure.HeavyLoadMiddleware>(3000, true);
+                //app.UseMiddleware<Infrastructure.HeavyLoadMiddleware>(3000, true);
             }
             else
             {

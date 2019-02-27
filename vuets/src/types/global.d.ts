@@ -7,6 +7,7 @@ export interface Loading {
 
 export interface Errors {
   errors: Array<string | AxiosError>;
+  fail?: boolean;
 }
 
 export interface Global extends Loading, Errors {}
