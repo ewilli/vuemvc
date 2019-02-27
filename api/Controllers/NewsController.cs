@@ -15,22 +15,30 @@ namespace api.Controllers
     public class NewsController : ControllerBase
     {
         private readonly NewsContext _context;
+        // Help Topics
         // https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/create-a-rest-api-with-attribute-routing
 
         public NewsController(NewsContext context)
         {
-            _context = context; // wird über Service injected
+            _context = context; // Dependency Injection
         }
 
-        // nachfolgender Code wurde noch nicht in eine Domain extrahiert. C > D > M
-
-
+        // Todo: code has to be extracted in domain and model
 
         // GET: api/news
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<News>>> GetNewsItems()
+        public async Task<ActionResult<IEnumerable<News>>> GetNewsItems([FromQuery] int? newsId, [FromQuery] int? articleId, [FromQuery] string searchTerm) // just for demo propose
         {
-            return await _context.News.Include(c => c.Articles).ThenInclude(c => c.Source).ToListAsync();
+            var query = _context.News.Include(c => c.Articles).ThenInclude(c => c.Source).AsQueryable();
+            if (newsId != null)
+                query = query.Where(c => c.NewsId == newsId.Value);
+            if (articleId != null)
+                query = query.Where(c => c.Articles.Any(d => d.ArticleId == articleId.Value));
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+                query = query.Where(c => c.Articles.Any(d => d.Description.Contains(searchTerm)));
+
+            return await query.ToListAsync();
+
         }
 
         // GET: api/news/5
@@ -121,17 +129,18 @@ namespace api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Domain
-            var article = _context.Articles.Find(articleId);
-            if (id != article.NewsId)
-            {
-                return BadRequest();
-            }
-
             byte[] file;
             using (var stream = new System.IO.MemoryStream())
             {
-                await fileBlob.CopyToAsync(stream);
+                var filecopy = fileBlob.CopyToAsync(stream);
+                var article = _context.Articles.FindAsync(articleId);
+
+                Task.WaitAll(filecopy, article); // just for demo -> dont read filedata if it is *not* necessary (newsid != id)
+
+                if (id != article.Result.NewsId)
+                {
+                    return BadRequest();
+                }
                 file = stream.ToArray();
             }
 

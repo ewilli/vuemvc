@@ -39,18 +39,16 @@ namespace api
 
             if (env.IsDevelopment())
             {
-                app.UseCors(c => { c.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:8080"); });
+                app.UseCors(c => { c.AllowAnyHeader().AllowAnyMethod().WithOrigins(Configuration.GetSection("Appsettings")?["CorsHost"] ?? ""); });
                 app.UseDeveloperExceptionPage();
-
-                Debug.Print("Start emulating heavy load...");
-                app.UseMiddleware<api.Infrastructure.HeavyLoadMiddleware>();
+                app.UseMiddleware<Infrastructure.HeavyLoadMiddleware>(3000, true);
             }
             else
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection(); // dev: dotnet dev-certs https --trust
             app.UseMvc();
 
         }

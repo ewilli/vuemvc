@@ -1,7 +1,6 @@
 import { Module, VuexModule, Action, Mutation, getModule } from 'vuex-module-decorators';
 import store from '../index';
 import * as feed from '@/types/news';
-import axios from 'axios';
 import api from '../api';
 // import clonedeep from 'lodash.clonedeep';
 
@@ -14,13 +13,13 @@ class NewsModule extends VuexModule {
   private news = {} as feed.News;
 
   get getNews() {
-    console.log('@Getter:getNews');
+    console.debug('@Getter:getNews');
     return this.news;
   }
 
   @Action
   public async loadNews(id: number) {
-    console.log('@Action:loadNews');
+    console.debug('@Action:loadNews');
     return api.news.getItem(id).then(response => {
       if (response.data) {
         this.context.commit('updateNews', response.data as feed.News);
@@ -32,13 +31,13 @@ class NewsModule extends VuexModule {
 
   @Action({ rawError: true }) // rawError does not decorate the error - so you are able to get the raw error from the action
   public async setRating(payload: feed.Rating) {
-    console.log('@Action:setRating');
+    console.debug('@Action:setRating');
     this.context.commit('updateRating', payload);
 
     return api.article.putFeedRating(payload).catch(err => {
-      console.log(err);
+      console.debug(err);
       this.loadNews(payload.newsId).catch(() => {
-        this.context.commit('updateNews', {});
+        this.context.commit('updateNews', {}); // dead end...
       });
       throw err; // rethrow for possible outer catch
     });
@@ -46,19 +45,19 @@ class NewsModule extends VuexModule {
 
   @Mutation
   private updateRating(rating: feed.Rating) {
-    console.log('@Mutation:updateRating');
+    console.debug('@Mutation:updateRating');
     this.news.articles[getIndexOfArticle(this.news, rating.id)].rating = rating.rating;
   }
 
   @Mutation
   private updateArticle(article: feed.Article) {
-    console.log('@Mutation:updateArticle');
+    console.debug('@Mutation:updateArticle');
     this.news.articles.splice(getIndexOfArticle(this.news, article.id), 1, article);
   }
 
   @Mutation
   private updateNews(news: feed.News) {
-    console.log('@Mutation:updateNews');
+    console.debug('@Mutation:updateNews');
     this.news = news;
   }
 }
