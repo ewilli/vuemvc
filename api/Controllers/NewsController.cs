@@ -79,7 +79,7 @@ namespace api.Controllers
             _context.News.Add(item);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetNewsItem), new { id = item.NewsId }, item);
+            return CreatedAtAction(nameof(PostNewsItem), new { id = item.NewsId }, item);
         }
 
         // PUT: api/news/5
@@ -120,9 +120,9 @@ namespace api.Controllers
             return NoContent();
         }
 
-        // POST: api/news/5/article/2/document
+        // POST: api/news/1/article/1/document
         [HttpPost("{id}/article/{articleId}/document")]
-        public async Task<IActionResult> PostArticleDocumentItem([FromRoute] int id, [FromRoute] int articleId, [FromForm] IFormFile fileBlob)
+        public async Task<IActionResult> PostArticleDocumentItem(int id, int articleId, [FromForm] IFormFile fileBlob)
         {
             if (fileBlob == null || fileBlob.Length == 0)
                 return BadRequest("fileBlob is null");
@@ -152,7 +152,7 @@ namespace api.Controllers
             _context.Add(document);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(document), new { documentId = document.DocumentId });
+            return CreatedAtAction(nameof(PostArticleDocumentItem), new { documentId = document.DocumentId });
         }
 
         [HttpGet("{id}/article/{articleId}/document/{documentId}")]

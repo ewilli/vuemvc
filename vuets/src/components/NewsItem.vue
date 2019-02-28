@@ -1,6 +1,6 @@
 <template>
   <v-card-title primary-title>
-    <uploader :news-id="newsId" :article-id="articleId">
+    <uploader :url="`/news/${this.newsId}/article/${this.articleId}/document`" >
       <div class="headline">{{title}}</div>
       <div>{{description}}</div>
     </uploader>
